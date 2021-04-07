@@ -23,3 +23,5 @@ Resources:
 Outputs:
   NotificationSnsTopicArn:
     Value: !Ref NotificationTopic
+    Export:
+      Name: !Sub "${AWS::StackName}-SNSTopic"

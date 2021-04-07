@@ -1,0 +1,67 @@
+name: app
+
+on:
+  workflow_run:
+    workflows:
+      - infra
+    types:
+      - completed
+
+jobs:
+  validate:
+    name: Validate Cloudformation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.CF_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.CF_SECRET_ACCESS_KEY }}
+          aws-region: 'ap-southeast-2'
+      - run: |
+          aws cloudformation validate-template --template-body file://deployment/app/templates/serverless.template
+  package:
+    name: Package Lambda Function
+    needs: [validate]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup DotNet Core Environment
+        uses: actions/setup-dotnet@v1
+        with: 
+          dotnet-version: '3.1.x'
+      - name: Install Lambda Tools
+        run: |
+          dotnet tool install -g Amazon.Lambda.Tools
+      - name: Package App
+        working-directory: ./CD.Notifications
+        run: |
+          dotnet lambda package --output-package out/lambda/CD.Notifications-${GITHUB_RUN_NUMBER}.zip
+      - name: Create Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: lambda_artifact
+          path: ./CD.Notifications/out/lambda
+  upload:
+    name: Upload Artifact to S3 and Create or Update Cloudformation Stack
+    needs: [package]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Download Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: lambda_artifact
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.CF_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.CF_SECRET_ACCESS_KEY }}
+          aws-region: 'ap-southeast-2'
+      - name: Upload Artifact to S3
+        run: |
+          aws s3 sync lambda_artifact s3://${{ secrets.S3_DEPLOY_BUCKET }}/lambda/CD.Notifications
+      - name: Create or Update Cloudformation Stack
+        run: |
+          aws cloudformation deploy --template-file deployment/app/templates/serverless.template --stack-name CD-Notifications-App --parameter-overrides BuildId=${GITHUB_RUN_NUMBER} AppName=CD.Notifications --capabilities CAPABILITY_IAM
