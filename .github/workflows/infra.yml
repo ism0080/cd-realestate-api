@@ -34,4 +34,4 @@ jobs:
           aws-region: 'ap-southeast-2'
       - name: Deploy Cloudformation
         run: |
-          aws cloudformation deploy --template-file deployment/infra/templates/_master.template --stack-name CD-Notifications-Infra --parameter-overrides TopicName=CD-Notification SubscriptionEmail={{ secrets.SUBEMAIL }}
+          aws cloudformation deploy --template-file deployment/infra/templates/_master.template --stack-name CD-Notifications-Infra --parameter-overrides TopicName=CD-Notification SubscriptionEmail=${{ secrets.SUBEMAIL }}
