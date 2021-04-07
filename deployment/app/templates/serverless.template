@@ -1,0 +1,93 @@
+## More Lambda information here if needed : https://docs.aws.amazon.com/serverless-application-model/index.html
+
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+
+## 
+## Globals for SAM serverless resources
+Globals:
+  Function:
+    Description: "SAM Serverless function template"
+    Handler: "CD.Notification::CD.Notification.LambdaEntryPoint::FunctionHandlerAsync"
+    Runtime: "dotnetcore3.1"
+    MemorySize: 256
+    Timeout: 30
+
+Parameters:
+  S3BucketArtifactBucket:
+    Type: String
+    Default: artifact-store-applications-ism0080
+  BuildId:
+    Type: String
+  AppName:
+    Type: String
+
+Resources:
+  LambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          Effect: Allow
+          Principal:
+            Service:
+              - lambda.amazonaws.com
+          Action:
+            - sts:AssumeRole
+      Path: /
+      Policies:
+        - PolicyName: !Sub ${AWS::StackName}-LambdaAccessRole
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:Get*
+                  - s3:List*
+                  - s3:DeleteObject
+                Resource:
+                  - !Join
+                    - ''
+                    - - 'arn:aws:s3:::'
+                      - !Sub "${S3BucketArtifactBucket}/*"
+      ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/CloudWatchEventsReadOnlyAccess
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+    
+  LambdaStack:
+    Type: AWS::Serverless::Function
+    Properties:
+      Role: !GetAtt LambdaRole.Arn
+      CodeUri:
+        Bucket: !Ref S3BucketArtifactBucket
+        Key: !Sub "lambda/${AppName}/${AppName}-${BuildId}.zip"
+      Policies:
+        - AWSLambda_FullAccess
+      Events:
+        ProxyResource:
+          Type: Api
+          Properties:
+            Path: "/{proxy+}"
+            Method: "ANY"
+    
+  LambdaStackLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${LambdaStack}
+      RetentionInDays: 30
+  
+  LambdaStackVersion:
+    Type: AWS::Lambda::Version
+    Properties:
+      FunctionName: !Ref LambdaStack
+
+Outputs:
+  ApiURL:
+    Description: "API endpoint URL for Prod environment"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+  LambdaFunction:
+    Description: Lambda template function ARN
+    Value: !GetAtt LambdaStack.Arn
+    Export:
+      Name: !Sub ${AWS::StackName}-LambdaFunctionArn

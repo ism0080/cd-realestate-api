@@ -1,0 +1,25 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Parameters:
+  TopicName:
+    Type: String
+  SubscriptionEmail:
+    Type: String
+
+Resources:
+  NotificationTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Ref TopicName
+      DisplayName: CD Real Estate Notifications
+
+  NotificationSubscription:
+    Type: AWS::SNS::Subscription
+    Parameters:
+      Endpoint: !Ref SubscriptionEmail
+      Protocol: email
+      TopicArn : !Ref NotificationTopic
+
+Outputs:
+  NotificationSnsTopicArn:
+    Value: !Ref NotificationTopic
