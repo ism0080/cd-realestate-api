@@ -12,9 +12,9 @@ Globals:
     Runtime: "dotnetcore3.1"
     MemorySize: 256
     Timeout: 30
-  Environment:
-    Variables:
-      SNSClientSettings__TopicName: !ImportValue 'CD-Notifications-Infra-SNSTopic'
+    Environment:
+      Variables:
+        SNSClientSettings__TopicName: !ImportValue 'CD-Notifications-Infra-SNSTopic'
 
 
 Parameters:
