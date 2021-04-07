@@ -70,10 +70,20 @@ namespace CD.Notifications
             });
 
             app.UseSwagger();
-            app.UseSwaggerUI(c =>
+            if (env.IsDevelopment())
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "CD - Real Estate Notification Service - API Gateway");
-            });
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "CD - Real Estate Notification Service - API Gateway");
+                });
+            }
+            else
+            {
+                app.UseSwaggerUI(c =>
+                {
+                    c.SwaggerEndpoint("/Prod/swagger/v1/swagger.json", "CD - Real Estate Notification Service - API Gateway");
+                });
+            }
         }
     }
 }
