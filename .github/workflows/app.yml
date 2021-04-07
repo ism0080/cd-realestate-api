@@ -11,6 +11,7 @@ jobs:
   validate:
     name: Validate Cloudformation
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - uses: actions/checkout@v2
       - name: Configure AWS Credentials
