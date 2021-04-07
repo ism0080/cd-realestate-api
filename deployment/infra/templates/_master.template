@@ -15,7 +15,7 @@ Resources:
 
   NotificationSubscription:
     Type: AWS::SNS::Subscription
-    Parameters:
+    Properties:
       Endpoint: !Ref SubscriptionEmail
       Protocol: email
       TopicArn : !Ref NotificationTopic
