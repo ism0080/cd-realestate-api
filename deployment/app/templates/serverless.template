@@ -8,7 +8,7 @@ Transform: AWS::Serverless-2016-10-31
 Globals:
   Function:
     Description: "SAM Serverless function template"
-    Handler: "CD.Notification::CD.Notification.LambdaEntryPoint::FunctionHandlerAsync"
+    Handler: "CD.Notifications::CD.Notifications.LambdaEntryPoint::FunctionHandlerAsync"
     Runtime: "dotnetcore3.1"
     MemorySize: 256
     Timeout: 30
