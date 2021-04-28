@@ -22,16 +22,23 @@ namespace CD.Notification.Controllers
         [HttpPost("database")]
         public async Task<IActionResult> AddToDatabase([FromBody] Customer request)
         {
-            var message = StringBuilder.NotificationMessage(request);
-            var test = new NotificationMessage
+            try
             {
-                Message = message,
-                Subject = "Add to Database"
-            };
+                var message = StringBuilder.NotificationMessage(request);
+                var snsMessage = new NotificationMessage
+                {
+                    Message = message,
+                    Subject = "Add to Database"
+                };
 
-            var result = await _snsClient.SendMessage(test);
+                var result = await _snsClient.SendMessage(snsMessage);
 
-            return Ok($"Notification Sent {result}");
+                return Ok($"Notification Sent {result}");
+            }
+            catch (Exception e)
+            {
+                return NotFound(e.Message);
+            }
         }
 
         [HttpPost("appraisal")]
