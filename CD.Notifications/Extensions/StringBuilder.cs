@@ -6,7 +6,7 @@ namespace CD.Notifications.Extensions
     {
         public static string NotificationMessage(Customer customer)
         {
-            return $"Name: {customer.FirstName} {customer.LastName} \n Phone: {customer.PhoneNumber} \n Email: {customer.Email} \n Address: {customer.Address.Street}, {customer.Address.City} {customer.Address.PostCode} \n Message: {customer.AdditionalMessage}";
+            return $"Name: {customer.FirstName} {customer.LastName} \nPhone: {customer.PhoneNumber} \nEmail: {customer.Email} \nAddress: {customer.Address.Street}, {customer.Address.City} {customer.Address.PostCode} \nMessage: {customer.AdditionalMessage} \nReceive Market Update: {customer.MarketUpdate.ToYesNoString()}";
         }
     }
 }

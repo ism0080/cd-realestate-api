@@ -25,6 +25,9 @@ Parameters:
     Type: String
   AppName:
     Type: String
+  ServiceApiKey:
+    Type: String
+    NoEcho: true
 
 Resources:
   LambdaRole:
@@ -80,6 +83,9 @@ Resources:
           Properties:
             Path: "/{proxy+}"
             Method: "ANY"
+      Environment:
+        Variables:
+          SecurityConfig__ApiKey: !Ref ServiceApiKey
     
   LambdaStackLogGroup:
     Type: AWS::Logs::LogGroup

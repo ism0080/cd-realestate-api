@@ -63,4 +63,4 @@ jobs:
           aws s3 sync lambda_artifact s3://${{ secrets.S3_DEPLOY_BUCKET }}/lambda/CD.Notifications
       - name: Create or Update Cloudformation Stack
         run: |
-          aws cloudformation deploy --template-file deployment/app/templates/serverless.template --stack-name CD-Notifications-App --parameter-overrides BuildId=${GITHUB_RUN_NUMBER} AppName=CD.Notifications --capabilities CAPABILITY_IAM
+          aws cloudformation deploy --template-file deployment/app/templates/serverless.template --stack-name CD-Notifications-App --parameter-overrides BuildId=${GITHUB_RUN_NUMBER} AppName=CD.Notifications ServiceApiKey={{ secrets.APIKEY }} --capabilities CAPABILITY_IAM

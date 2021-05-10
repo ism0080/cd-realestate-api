@@ -20,7 +20,7 @@ namespace CD.Notifications.Tests
     {
 
 
-        [Fact]
+        [Fact(Skip = "Not Implemented")]
         public async Task TestGet()
         {
             var lambdaFunction = new LambdaEntryPoint();

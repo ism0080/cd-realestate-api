@@ -10,7 +10,10 @@ using Amazon.Lambda.Core;
 
 namespace CD.Notification.Controllers
 {
+    [ApiVersion("1.0")]
+    [ApiController]
     [Route("api/[controller]")]
+    [Produces("application/json")]
     public class SubscriptionController : ControllerBase
     {
         private readonly ISNSClient _snsClient;
